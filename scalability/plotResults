@@ -1,0 +1,57 @@
+#!/bin/bash
+#execute: "./plotResults <nr_max_of_simult_VMs_in_result_files> <function_name>" 
+set -e
+
+mem=$(cat configure | cut -d' ' -f2)
+nr_vcpu=$(cat configure | cut -d' ' -f3)
+nr_idle=$(cat configure | cut -d' ' -f4)
+gnuplot_file="gnuplot_in"
+
+> data.dat
+
+#i represents the number of VMs started simultaneously
+for i in `seq 1 $1`; do
+	> min
+	> max
+
+	#iterate over all result files for a given nummber of simultaneously started VMs
+	for FILE in results/boot.$mem.$nr_vcpu.$nr_idle.$i/expe1/*; do
+		#keep the min and the max execution time of a function give as argument to the script
+		cat ${FILE} | grep min_max | grep " $2 " | cut -d' ' -f4 >> min
+		cat ${FILE} | grep min_max | grep " $2 " | cut -d' ' -f5 >> max
+	done
+
+	#sort the min and the max file and remove the 5 hignest and the 5 lowest results
+	sort -nk1 min > min.sorted && mv min.sorted min
+	sort -nk1 max > max.sorted && mv max.sorted max
+	tail -n +6 min | head -n -5 > min.new && mv min.new min
+	tail -n +6 max | head -n -5 > max.new && mv max.new max
+
+	#combine the min and the max columns to a single file
+	paste -d " " min max > min_max
+
+	#compute and print "<nr>VMs min_average min_stdev max_average max_stdev" to data.dat
+	awk -v i="$i" '{sum1+=$1; sum2+=$2; sumsq1+=$1*$1; sumsq2+=$2*$2;} END {print i"VMs", sum1/NR, sqrt((sumsq1-sum1^2/NR)/NR), sum2/NR, sqrt((sumsq2-sum2^2/NR)/NR)}' min_max >> data.dat
+done
+
+#construct gnuplot input file
+echo "reset" > $gnuplot_file
+echo "fontsize = 12" >> $gnuplot_file
+echo "set xtics \"\"" >> $gnuplot_file
+echo "set term postscript noenhanced eps fontsize" >> $gnuplot_file
+echo "set output \"$2.eps\"" >> $gnuplot_file
+echo "set style fill solid 1.00 border 0" >> $gnuplot_file
+echo "set style histogram errorbars gap 1 lw 3" >> $gnuplot_file
+echo "set style data histogram" >> $gnuplot_file
+echo "set xlabel \"$2\"" >> $gnuplot_file
+echo "set ylabel \"average/stdev for startup time (usec)\"" >> $gnuplot_file
+echo "set yrange [0:*]" >> $gnuplot_file
+echo "set datafile separator \" \"" >> $gnuplot_file
+echo "plot 'data.dat' using 2:3:xtic(1) ti \"min\" linecolor rgb \"\#FF0000\", \\" >> $gnuplot_file
+echo -e "\t''  using 4:5 ti \"max\" lt 1 lc rgb \"\#00FF00\"" >> $gnuplot_file
+
+#plot the results
+gnuplot $gnuplot_file
+epstopdf $2.eps
+#evince $2.pdf
+

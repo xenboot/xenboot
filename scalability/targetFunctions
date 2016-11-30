@@ -1,0 +1,25 @@
+main_create
+create_domain
+acquire_lock
+freemem
+libxl_domain_need_memory
+libxl_get_free_memory
+libxl_domain_create_new
+	do_domain_create
+		initiate_domain_create
+release_lock
+libxl_domain_unpause
+libxl__domain_create_info_setdefault
+libxl__domain_build_info_setdefault
+libxl__bootloader_run
+libxl__domain_make
+	libxl__uuid2string
+	libxl_defbool_val
+	libxl__arch_domain_prepare_config
+	xc_domain_create
+	libxl__arch_domain_save_config
+	xc_cpupool_movedomain
+	libxl__xs_get_dompath
+	GCSPRINTF
+	libxl__xs_libxl_path
+	retry_transaction

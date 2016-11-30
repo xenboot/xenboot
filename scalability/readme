@@ -1,0 +1,33 @@
+-Machine
+Intel(R) Core(TM) i7-5600U CPU @ 2.60GHz
+4 cores
+no HT
+8GB memory
+SSD hard disk
+
+###############Single boot#########################
+-interpretation of a result file name: boot.rank.mem.nr_vcpu.nr_idle
+mem=VM memory size
+nr_idl=Number of idle VM
+nr_vcpu=Numer of vCPU
+rank=creation rank
+example boot.1.32.1.0 means: first boot of a VM configured with 32MB of memory, a single vCPU, where no idle VM is running.
+
+############################################################
+#############################VLAD###########################
+############################################################
+
+#################Launch experiments#########################
+Execute ./launch.sh <up_to_VMs> <nb_of_repetitions+1>.
+Example: ./launch.sh 47 31 &
+	boot simultaneously n VMs (n varies from 1 to 47).
+	Each experiment is repeated 30 times.
+
+##############Ploting script#################################
+execute: "./plotResults <nr_max_of_simult_VMs_in_result_files> <function_name>"
+
+where: 	<nr_max_of_simult_VMs_in_result_files> represents the maximum number of simultaneous VM for whom we have experiment results
+	<function_name> represents the name of the function for which we want to create the plot 
+
+If you want to generate plot results for all the functions in the targetFunctions file execute:
+	while read -r LINE; do ./plotResults 3 "$LINE"; done < targetFunctions
