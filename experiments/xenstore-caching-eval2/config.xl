@@ -1,0 +1,5 @@
+kernel = "mini-os.gz"
+memory = 32
+on_crash = 'destroy'
+name = "mini_os_1"
+vcpus = 1
