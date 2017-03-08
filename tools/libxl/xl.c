@@ -40,6 +40,8 @@
 #include "libxlutil.h"
 #include "xl.h"
 
+#include "eval.h"
+
 xentoollog_logger_stdiostream *logger;
 int dryrun_only;
 int force_execution;
@@ -485,23 +487,18 @@ static inline void *main_create_callback(void *cmd_ptr) {
 	return NULL;
 }
 
-//#define PIERRE_TIMING
-
 static inline void *create_callback(void *cmd_ptr) {
 	char **cmd = cmd_ptr;
 	
-#ifdef PIERRE_TIMING
-	struct timeval start, stop, res;
-	gettimeofday(&start, NULL);
-#endif /* PIERRE_TIMING */
+#ifdef ENABLE_EVAL
+	START_TIMER
+#endif /* ENABLE_EVAL */
 
 	main_create_callback(cmd_ptr);
 
-#ifdef PIERRE_TIMING
-	gettimeofday(&stop, NULL);
-	timersub(&stop, &start, &res);
-	printf("create: %ld.%06ld\n", res.tv_sec, res.tv_usec);
-#endif /* PIERRE_TIMING */
+#ifdef ENABLE_EVAL
+	STOP_TIMER_W(EVAL_OP_FILE_CREATE)
+#endif /* ENABLE_EVAL */
 
 	free(cmd[1]);
 	free(cmd);
@@ -517,18 +514,15 @@ static inline void *main_destroy_callback(void *cmd_ptr) {
 static inline void *destroy_callback(void *cmd_ptr) {
 	char **cmd = cmd_ptr;
 
-#ifdef PIERRE_TIMING
-        struct timeval start, stop, res;
-        gettimeofday(&start, NULL);
-#endif /* PIERRE_TIMING */
+#ifdef ENABLE_EVAL
+        START_TIMER
+#endif /* ENABLE_EVAL */
 
 	main_destroy_callback(cmd_ptr);
 
-#ifdef PIERRE_TIMING
-        gettimeofday(&stop, NULL);
-        timersub(&stop, &start, &res);
-        printf("destroy: %ld.%06ld\n", res.tv_sec, res.tv_usec);
-#endif /* PIERRE_TIMING */
+#ifdef ENABLE_EVAL
+        STOP_TIMER_W(EVAL_OP_FILE_DESTROY)
+#endif /* ENABLE_EVAL */
 
 
 	free(cmd[1]);

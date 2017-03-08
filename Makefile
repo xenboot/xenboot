@@ -79,7 +79,7 @@ dist: $(TARGS_DIST) dist-misc
 dist-misc:
 	$(INSTALL_DIR) $(DISTDIR)/
 	$(INSTALL_DATA) ./COPYING $(DISTDIR)
-	$(INSTALL_DATA) ./README $(DISTDIR)
+	$(INSTALL_DATA) ./README.xen $(DISTDIR)
 	$(INSTALL_PROG) ./install.sh $(DISTDIR)
 dist-%: DESTDIR=$(DISTDIR)/install
 dist-%: install-%
